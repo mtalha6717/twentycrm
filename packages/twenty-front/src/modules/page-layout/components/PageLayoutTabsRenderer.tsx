@@ -1,5 +1,3 @@
-import { TabListRoot } from '@/ui/layout/tab-list/components/TabListRoot';
-import { Tabs } from 'twenty-ui/primitives/navigation';
 import { PageLayoutWidgetDndProvider } from '@/page-layout/components/dnd/PageLayoutWidgetDndProvider';
 import { PageLayoutLeftPanel } from '@/page-layout/components/PageLayoutLeftPanel';
 import { PageLayoutPrerenderedTabIdsResetEffect } from '@/page-layout/components/PageLayoutPrerenderedTabIdsResetEffect';
@@ -20,26 +18,29 @@ import { shouldEnableTabEditingFeatures } from '@/page-layout/utils/shouldEnable
 import { shouldPrerenderPageLayoutTab } from '@/page-layout/utils/shouldPrerenderPageLayoutTab';
 import { sortTabsByPosition } from '@/page-layout/utils/sortTabsByPosition';
 import { useLayoutRenderingContext } from '@/ui/layout/contexts/LayoutRenderingContext';
-import { useWorkspaceSurfaceScopedComponentInstanceId } from '@/ui/layout/hooks/useWorkspaceSurfaceScopedComponentInstanceId';
 import { useWorkspaceSurface } from '@/ui/layout/hooks/useWorkspaceSurface';
+import { useWorkspaceSurfaceScopedComponentInstanceId } from '@/ui/layout/hooks/useWorkspaceSurfaceScopedComponentInstanceId';
+import { TabListRoot } from '@/ui/layout/tab-list/components/TabListRoot';
 import { activeTabIdComponentState } from '@/ui/layout/tab-list/states/activeTabIdComponentState';
 import { useIsMobile } from '@/ui/utilities/responsive/hooks/useIsMobile';
 import { ScrollWrapper } from '@/ui/utilities/scroll/components/ScrollWrapper';
 import { useAtomComponentStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomComponentStateValue';
 import { styled } from '@linaria/react';
 import { isDefined } from 'twenty-shared/utils';
+import { Tabs } from 'twenty-ui/primitives/navigation';
 import { MOBILE_VIEWPORT, themeCssVariables } from 'twenty-ui/theme-constants';
 import { PageLayoutType } from '~/generated-metadata/graphql';
 
 const StyledRoot = styled.div`
   display: flex;
+  flex: 1;
   flex-direction: column;
-  height: 100%;
   min-height: 0;
   width: 100%;
 
   @media print {
     display: block;
+    flex: none;
     height: auto;
   }
 `;
@@ -238,6 +239,7 @@ export const PageLayoutTabsRenderer = () => {
       <TabListRoot
         componentInstanceId={tabListInstanceId}
         enabled={hasTabPanels}
+        shouldFillHeight
       >
         <StyledRoot>
           {shouldRenderRecordIdentifierBar && (
