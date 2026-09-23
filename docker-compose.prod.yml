@@ -24,7 +24,7 @@ services:
       dockerfile: packages/twenty-docker/twenty/Dockerfile
       target: twenty
       args:
-        APP_VERSION: ${APP_VERSION:-2.41.0}
+        APP_VERSION: ${APP_VERSION:-2.42.0}
     image: twenty:local
     volumes:
       - server-local-data:/app/packages/twenty-server/.local-storage

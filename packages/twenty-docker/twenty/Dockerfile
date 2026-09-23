@@ -277,7 +277,7 @@ RUN mkdir -p /data/postgres /data/redis /app/packages/twenty-server/.local-stora
  && chown -R postgres:postgres /data/postgres \
  && chown 1000:1000 /data/redis /app/packages/twenty-server/.local-storage
 
-ARG APP_VERSION=0.0.0
+ARG APP_VERSION=2.42.0
 
 ENV S6_KEEP_ENV=1
 ENV PG_DATABASE_URL=postgres://twenty:twenty@localhost:5432/default \
