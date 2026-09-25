@@ -32,6 +32,7 @@ export type FieldTextMetadata = BaseFieldMetadata & {
   placeHolder: string;
   settings?: {
     displayedMaxRows?: number;
+    displayAs?: 'TOTP';
   };
 };
 
@@ -147,6 +148,8 @@ export type FieldRelationMetadataSettings = {
   // Points to the target field on the junction object
   // For MORPH_RELATION fields, morphRelations already contains all targets
   junctionTargetFieldId?: string;
+  // Extra filter on the target records offered by the relation pickers
+  recordPickerFilter?: Record<string, unknown>;
 } | null;
 
 // for later: refactor this in order to directly use relation without mapping

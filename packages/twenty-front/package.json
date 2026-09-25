@@ -105,6 +105,7 @@
     "js-cookie": "^3.0.5",
     "json-2-csv": "^5.4.0",
     "json-logic-js": "^2.0.5",
+    "jsqr": "^1.4.0",
     "jwt-decode": "^4.0.0",
     "libphonenumber-js": "^1.10.26",
     "linkify-react": "^4.1.3",

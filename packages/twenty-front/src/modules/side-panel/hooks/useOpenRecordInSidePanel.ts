@@ -1,3 +1,5 @@
+import { AUTHENTICATOR_OBJECT_NAME_SINGULAR } from '@/authenticator/constants/AuthenticatorObjectNameSingular';
+import { useOpenAuthenticatorDialog } from '@/authenticator/hooks/useOpenAuthenticatorDialog';
 import { useSidePanelMenu } from '@/side-panel/hooks/useSidePanelMenu';
 import { useOpenRoutedPageInSidePanel } from '@/side-panel/routing/hooks/useOpenRoutedPageInSidePanel';
 import { sidePanelNavigationStackState } from '@/side-panel/states/sidePanelNavigationStackState';
@@ -24,6 +26,7 @@ export const useOpenRecordInSidePanel = () => {
   const { runWorkflowRunOpeningInSidePanelEffects } =
     useRunWorkflowRunOpeningInSidePanelEffects();
   const { openNewRecordTitleCell } = useOpenNewRecordTitleCell();
+  const { openAuthenticatorEditDialog } = useOpenAuthenticatorDialog();
 
   const isMobile = useIsMobile();
   const navigate = useNavigateApp();
@@ -42,6 +45,12 @@ export const useOpenRecordInSidePanel = () => {
       isNewRecord?: boolean;
       resetNavigationStack?: boolean;
     }) => {
+      if (objectNameSingular === AUTHENTICATOR_OBJECT_NAME_SINGULAR) {
+        openAuthenticatorEditDialog(recordId);
+
+        return null;
+      }
+
       if (isMobile) {
         // Mobile escapes the panel router and cannot hand its hash to the main
         // navigator, so seed the main tab as a compatibility transition.
@@ -169,6 +178,7 @@ export const useOpenRecordInSidePanel = () => {
       closeSidePanelMenu,
       isMobile,
       navigate,
+      openAuthenticatorEditDialog,
       openNewRecordTitleCell,
       openRoutedPageInSidePanel,
       runWorkflowRunOpeningInSidePanelEffects,

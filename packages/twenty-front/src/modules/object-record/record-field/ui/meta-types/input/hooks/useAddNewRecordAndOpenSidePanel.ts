@@ -1,5 +1,7 @@
 import { v4 } from 'uuid';
 
+import { AUTHENTICATOR_OBJECT_NAME_SINGULAR } from '@/authenticator/constants/AuthenticatorObjectNameSingular';
+import { useOpenAuthenticatorDialog } from '@/authenticator/hooks/useOpenAuthenticatorDialog';
 import { SEARCH_QUERY } from '@/command-menu/graphql/queries/search';
 import { useOpenRecordInSidePanel } from '@/side-panel/hooks/useOpenRecordInSidePanel';
 import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
@@ -48,6 +50,7 @@ export const useAddNewRecordAndOpenSidePanel = ({
     });
 
   const { openRecordInSidePanel } = useOpenRecordInSidePanel();
+  const { openAuthenticatorCreationDialog } = useOpenAuthenticatorDialog();
 
   const apolloCoreClient = useApolloCoreClient();
 
@@ -95,6 +98,20 @@ export const useAddNewRecordAndOpenSidePanel = ({
               });
 
         createRecordPayload[`${gqlField}Id`] = recordId;
+      }
+
+      // Authenticators need a secret, so collect it in their dialog instead of
+      // creating an empty record
+      if (
+        relationObjectMetadataNameSingular ===
+        AUTHENTICATOR_OBJECT_NAME_SINGULAR
+      ) {
+        const { id: _draftId, ...initialDraftRecord } = createRecordPayload;
+        const createdRecord = await openAuthenticatorCreationDialog({
+          initialDraftRecord,
+        });
+
+        return createdRecord?.id;
       }
 
       await createOneRecord(createRecordPayload);

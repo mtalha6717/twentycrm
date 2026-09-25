@@ -39,6 +39,8 @@ type FieldMetadataCurrencySettings = {
 
 type FieldMetadataTextSettings = {
   displayedMaxRows?: number;
+  // Treat the value as a base32 TOTP secret and show the live code instead
+  displayAs?: 'TOTP';
 };
 
 type FieldMetadataDateSettings = {

@@ -5,6 +5,8 @@ import { useCallback, useContext } from 'react';
 import { useObjectMetadataItem } from '@/object-metadata/hooks/useObjectMetadataItem';
 import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadataItems';
 import { CoreObjectNameSingular } from 'twenty-shared/types';
+import { RelationRecordTotpCode } from '@/authenticator/components/RelationRecordTotpCode';
+import { findTotpFieldMetadataItem } from '@/authenticator/utils/findTotpFieldMetadataItem';
 import { RecordChip } from '@/object-record/components/RecordChip';
 import { useDeleteOneRecord } from '@/object-record/hooks/useDeleteOneRecord';
 import { useObjectPermissionsForObject } from '@/object-record/hooks/useObjectPermissionsForObject';
@@ -34,6 +36,7 @@ import { createPortal } from 'react-dom';
 import {
   computeMorphRelationGqlFieldName,
   CustomError,
+  isDefined,
 } from 'twenty-shared/utils';
 import {
   IconChevronDown,
@@ -110,6 +113,10 @@ export const RecordDetailRelationRecordsListItem = ({
     });
 
   const relationObjectLabelSingular = relationObjectMetadataItem.labelSingular;
+
+  const totpFieldMetadataItem = findTotpFieldMetadataItem(
+    relationObjectMetadataItem,
+  );
 
   const relationObjectPermissions = useObjectPermissionsForObject(
     relationObjectMetadataItem.id,
@@ -221,6 +228,13 @@ export const RecordDetailRelationRecordsListItem = ({
           record={relationRecord}
           objectNameSingular={relationObjectMetadataItem.nameSingular}
         />
+        {isDefined(totpFieldMetadataItem) && (
+          <RelationRecordTotpCode
+            objectNameSingular={relationObjectMetadataItem.nameSingular}
+            recordId={relationRecord.id}
+            totpFieldName={totpFieldMetadataItem.name}
+          />
+        )}
         <StyledClickableZone onClick={handleClick} data-testid="expand-button">
           <LightIconButton
             className="displayOnHover"

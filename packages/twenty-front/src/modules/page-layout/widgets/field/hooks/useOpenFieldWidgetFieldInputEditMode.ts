@@ -1,3 +1,4 @@
+import { type RecordGqlOperationFilter } from 'twenty-shared/types';
 import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadataItems';
 import { useOpenJunctionRelationFieldInput } from '@/object-record/record-field/ui/hooks/useOpenJunctionRelationFieldInput';
 import { useOpenMorphRelationManyToOneFieldInput } from '@/object-record/record-field/ui/meta-types/input/hooks/useOpenMorphRelationManyToOneFieldInput';
@@ -110,6 +111,8 @@ export const useOpenFieldWidgetFieldInputEditMode = () => {
         ) {
           openRelationFromManyFieldInput({
             fieldName: fieldDefinition.metadata.fieldName,
+            recordPickerFilter: fieldDefinition.metadata.settings
+              ?.recordPickerFilter as RecordGqlOperationFilter | undefined,
             objectNameSingular:
               fieldDefinition.metadata.relationObjectMetadataNameSingular,
             recordId,

@@ -1,3 +1,5 @@
+import { AUTHENTICATOR_OBJECT_NAME_SINGULAR } from '@/authenticator/constants/AuthenticatorObjectNameSingular';
+import { useOpenAuthenticatorDialog } from '@/authenticator/hooks/useOpenAuthenticatorDialog';
 import { type EnrichedObjectMetadataItem } from '@/object-metadata/types/EnrichedObjectMetadataItem';
 import { RecordCreationFormCancellationEffect } from '@/object-record/record-form/components/RecordCreationFormCancellationEffect';
 import {
@@ -32,6 +34,7 @@ export const RecordCreationFormProvider = ({
 }: RecordCreationFormProviderProps) => {
   const store = useStore();
   const { navigateSidePanelMenu } = useSidePanelMenu();
+  const { openAuthenticatorCreationDialog } = useOpenAuthenticatorDialog();
 
   const [pendingRecordCreations, setPendingRecordCreations] = useState<
     PendingRecordCreation[]
@@ -119,6 +122,15 @@ export const RecordCreationFormProvider = ({
         draftRecord: Partial<ObjectRecord>,
       ) => Promise<ObjectRecord>;
     }) => {
+      // Authenticators have their own dialog (QR capture, live code) instead of the form
+      if (
+        objectMetadataItem.nameSingular === AUTHENTICATOR_OBJECT_NAME_SINGULAR
+      ) {
+        return openAuthenticatorCreationDialog({
+          initialDraftRecord,
+        });
+      }
+
       const requestId = v4();
 
       store.set(
@@ -152,7 +164,7 @@ export const RecordCreationFormProvider = ({
         });
       });
     },
-    [navigateSidePanelMenu, store],
+    [navigateSidePanelMenu, openAuthenticatorCreationDialog, store],
   );
 
   const cancelPendingRecordCreation = useCallback(

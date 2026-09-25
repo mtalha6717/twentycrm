@@ -1,5 +1,7 @@
 import { useContext } from 'react';
 
+import { RecordChipWithTotpCode } from '@/authenticator/components/RecordChipWithTotpCode';
+import { findTotpFieldMetadataItem } from '@/authenticator/utils/findTotpFieldMetadataItem';
 import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadataItems';
 import { RecordChip } from '@/object-record/components/RecordChip';
 import { FieldContext } from '@/object-record/record-field/ui/contexts/FieldContext';
@@ -38,6 +40,14 @@ export const RelationFromManyFieldDisplay = () => {
     sourceObjectMetadataId,
     objectMetadataItems,
   });
+
+  const relationObjectMetadataItem = objectMetadataItems.find(
+    (item) => item.nameSingular === relationObjectNameSingular,
+  );
+  // e.g. a supplier's authenticators show their live code next to the chip
+  const totpFieldMetadataItem = isDefined(relationObjectMetadataItem)
+    ? findTotpFieldMetadataItem(relationObjectMetadataItem)
+    : undefined;
 
   if (!isDefined(fieldValue)) {
     return null;
@@ -110,13 +120,27 @@ export const RelationFromManyFieldDisplay = () => {
     >
       {fieldValue.filter(isDefined).map((record) => {
         const recordChipData = generateRecordChipData(record);
-        return (
+        const recordChip = (
           <RecordChip
             key={recordChipData.recordId}
             objectNameSingular={recordChipData.objectNameSingular}
             record={record}
             forceDisableClick={disableChipClick}
             triggerEvent={triggerEvent}
+          />
+        );
+
+        if (!isDefined(totpFieldMetadataItem)) {
+          return recordChip;
+        }
+
+        return (
+          <RecordChipWithTotpCode
+            key={recordChipData.recordId}
+            recordChip={recordChip}
+            objectNameSingular={recordChipData.objectNameSingular}
+            recordId={recordChipData.recordId}
+            totpFieldName={totpFieldMetadataItem.name}
           />
         );
       })}

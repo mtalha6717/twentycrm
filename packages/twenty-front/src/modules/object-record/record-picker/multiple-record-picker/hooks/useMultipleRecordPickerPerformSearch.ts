@@ -1,3 +1,5 @@
+import { multipleRecordPickerRecordFilterComponentState } from '@/object-record/record-picker/multiple-record-picker/states/multipleRecordPickerRecordFilterComponentState';
+import { FilterIs, type ObjectRecordFilterInput } from '~/generated/graphql';
 import { SEARCH_QUERY } from '@/command-menu/graphql/queries/search';
 import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
 import { type EnrichedObjectMetadataItem } from '@/object-metadata/types/EnrichedObjectMetadataItem';
@@ -94,6 +96,37 @@ export const useMultipleRecordPickerPerformSearch = () => {
         ({ isSelected }) => isSelected,
       );
 
+      const recordFilter = store.get(
+        multipleRecordPickerRecordFilterComponentState.atomFamily(
+          atomFamilyKey,
+        ),
+      );
+
+      // The search API only filters on id/dates, so resolve the field filter to ids
+      // ponytail: capped at 500 matching records, paginate if a filtered list grows past that
+      let pickableRecordsFilter: ObjectRecordFilterInput | undefined;
+
+      if (isDefined(recordFilter) && searchableObjectMetadataItems.length > 0) {
+        const { result } = await performCombinedFindManyRecords({
+          operationSignatures: searchableObjectMetadataItems.map(
+            ({ nameSingular }) => ({
+              objectNameSingular: nameSingular,
+              variables: { filter: recordFilter, limit: 500 },
+              fields: { id: true },
+            }),
+          ),
+        });
+        const allowedRecordIds = Object.values(result)
+          .flat()
+          .map(({ id }) => id);
+
+        // The API rejects an empty `in` list; `is NULL` on id matches nothing
+        pickableRecordsFilter =
+          allowedRecordIds.length > 0
+            ? { id: { in: allowedRecordIds } }
+            : { id: { is: FilterIs.Null } };
+      }
+
       const filteredSearchableObjectMetadataItems =
         searchableObjectMetadataItems.filter(
           (objectMetadataItem) =>
@@ -115,6 +148,7 @@ export const useMultipleRecordPickerPerformSearch = () => {
           ({ recordId }) => recordId,
         ),
         after: loadMore ? paginationState.endCursor : null,
+        pickableRecordsFilter,
       });
 
       const existingMorphItems = store.get(
@@ -377,6 +411,7 @@ const performSearchQueries = async ({
   pickedRecordIds,
   limit = MULTIPLE_RECORD_PICKER_PAGE_SIZE,
   after = null,
+  pickableRecordsFilter,
 }: {
   client: ApolloClient;
   searchFilter: string;
@@ -384,6 +419,7 @@ const performSearchQueries = async ({
   pickedRecordIds: string[];
   limit?: number;
   after?: string | null;
+  pickableRecordsFilter?: ObjectRecordFilterInput;
 }): Promise<
   [
     SearchRecord[],
@@ -422,16 +458,17 @@ const performSearchQueries = async ({
     };
   };
 
-  const searchRecordsExcludingPickedRecordsResult = await searchRecords(
+  const notPickedFilter =
     pickedRecordIds.length > 0
-      ? {
-          not: {
-            id: {
-              in: pickedRecordIds,
-            },
-          },
-        }
-      : undefined,
+      ? { not: { id: { in: pickedRecordIds } } }
+      : undefined;
+
+  // Already-picked records stay listed (so they can be unpicked) even if they no
+  // longer match pickableRecordsFilter
+  const searchRecordsExcludingPickedRecordsResult = await searchRecords(
+    isDefined(notPickedFilter) && isDefined(pickableRecordsFilter)
+      ? { and: [notPickedFilter, pickableRecordsFilter] }
+      : (notPickedFilter ?? pickableRecordsFilter),
   );
 
   const searchRecordsIncludingPickedRecordsResult =

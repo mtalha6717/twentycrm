@@ -37206,6 +37206,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jsqr@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "jsqr@npm:1.4.0"
+  checksum: 10c0/69fbfe4c866a04c97b377901a166544a583bfc76b838c275efa9af058d64e5612267079b1e96ea7b6434385803571b1c6a97a43c85f4373e8afa4f4034fc916c
+  languageName: node
+  linkType: hard
+
 "jszip@npm:^3.10.1":
   version: 3.10.1
   resolution: "jszip@npm:3.10.1"
@@ -50114,6 +50121,7 @@ __metadata:
     js-cookie: "npm:^3.0.5"
     json-2-csv: "npm:^5.4.0"
     json-logic-js: "npm:^2.0.5"
+    jsqr: "npm:^1.4.0"
     jwt-decode: "npm:^4.0.0"
     libphonenumber-js: "npm:^1.10.26"
     linkify-react: "npm:^4.1.3"

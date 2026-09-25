@@ -1,3 +1,5 @@
+import { multipleRecordPickerRecordFilterComponentState } from '@/object-record/record-picker/multiple-record-picker/states/multipleRecordPickerRecordFilterComponentState';
+import { type RecordGqlOperationFilter } from 'twenty-shared/types';
 import { objectMetadataItemsSelector } from '@/object-metadata/states/objectMetadataItemsSelector';
 import {
   type FieldRelationFromManyValue,
@@ -30,11 +32,13 @@ export const useOpenRelationFromManyFieldInput = () => {
       objectNameSingular,
       recordId,
       prefix,
+      recordPickerFilter,
     }: {
       fieldName: string;
       objectNameSingular: string;
       recordId: string;
       prefix?: string;
+      recordPickerFilter?: RecordGqlOperationFilter;
     }) => {
       const recordPickerInstanceId = getRecordFieldInputInstanceId({
         recordId,
@@ -86,6 +90,13 @@ export const useOpenRelationFromManyFieldInput = () => {
           { instanceId: recordPickerInstanceId },
         ),
         [objectMetadataItem],
+      );
+
+      store.set(
+        multipleRecordPickerRecordFilterComponentState.atomFamily({
+          instanceId: recordPickerInstanceId,
+        }),
+        recordPickerFilter ?? null,
       );
 
       performSearch({

@@ -1,3 +1,6 @@
+import { isFieldRelation } from '@/object-record/record-field/ui/types/guards/isFieldRelation';
+import { type RecordGqlOperationFilter } from 'twenty-shared/types';
+import { multipleRecordPickerRecordFilterComponentState } from '@/object-record/record-picker/multiple-record-picker/states/multipleRecordPickerRecordFilterComponentState';
 import { t } from '@lingui/core/macro';
 import { type ReactNode, useCallback, useContext } from 'react';
 
@@ -145,6 +148,11 @@ export const RecordDetailRelationSectionDropdownToMany = ({
       dropdownId,
     );
 
+  const setMultipleRecordPickerRecordFilter = useSetAtomComponentState(
+    multipleRecordPickerRecordFilterComponentState,
+    dropdownId,
+  );
+
   const { performSearch: multipleRecordPickerPerformSearch } =
     useMultipleRecordPickerPerformSearch();
 
@@ -181,6 +189,13 @@ export const RecordDetailRelationSectionDropdownToMany = ({
     );
     setMultipleRecordPickerSearchFilter('');
     setMultipleRecordPickerPickableMorphItems(pickableMorphItems);
+    setMultipleRecordPickerRecordFilter(
+      isFieldRelation(fieldDefinition)
+        ? ((fieldDefinition.metadata.settings?.recordPickerFilter as
+            | RecordGqlOperationFilter
+            | undefined) ?? null)
+        : null,
+    );
 
     openMultipleRecordPicker(dropdownId);
 
