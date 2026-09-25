@@ -8,6 +8,7 @@ import { useAddNewRecordAndOpenSidePanel } from '@/object-record/record-field/ui
 import { RecordFieldComponentInstanceContext } from '@/object-record/record-field/ui/states/contexts/RecordFieldComponentInstanceContext';
 import { recordFieldInputLayoutDirectionComponentState } from '@/object-record/record-field/ui/states/recordFieldInputLayoutDirectionComponentState';
 import { recordFieldInputLayoutDirectionLoadingComponentState } from '@/object-record/record-field/ui/states/recordFieldInputLayoutDirectionLoadingComponentState';
+import { useFindManyRecords } from '@/object-record/hooks/useFindManyRecords';
 import { SingleRecordPicker } from '@/object-record/record-picker/single-record-picker/components/SingleRecordPicker';
 import { singleRecordPickerSelectedIdComponentState } from '@/object-record/record-picker/single-record-picker/states/singleRecordPickerSelectedIdComponentState';
 import { type RecordPickerPickableMorphItem } from '@/object-record/record-picker/types/RecordPickerPickableMorphItem';
@@ -19,6 +20,8 @@ import { useLingui } from '@lingui/react/macro';
 import { useContext } from 'react';
 import { CustomError, isDefined } from 'twenty-shared/utils';
 import { IconForbid } from 'twenty-ui/icon';
+import { type RecordGqlOperationFilter } from 'twenty-shared/types';
+import { FilterIs, type ObjectRecordFilterInput } from '~/generated/graphql';
 
 export const RelationManyToOneFieldInput = () => {
   const { t } = useLingui();
@@ -98,6 +101,32 @@ export const RelationManyToOneFieldInput = () => {
     }
   };
 
+  // The search API only filters on id/dates, so resolve the field's
+  // recordPickerFilter to allowed ids first.
+  // ponytail: capped at 500 target records, paginate if a filtered list grows past that
+  const recordPickerFilter = fieldMetadataItem.settings?.recordPickerFilter as
+    | RecordGqlOperationFilter
+    | undefined;
+
+  // While loading, allowedRecords is empty so the picker briefly lists nothing
+  const { records: allowedRecords } = useFindManyRecords({
+    objectNameSingular:
+      fieldDefinition.metadata.relationObjectMetadataNameSingular,
+    filter: recordPickerFilter,
+    recordGqlFields: { id: true },
+    limit: 500,
+    skip: !isDefined(recordPickerFilter),
+  });
+
+  // The API rejects an empty `in` list; `is NULL` on id matches nothing
+  const additionalFilter: ObjectRecordFilterInput | undefined = !isDefined(
+    recordPickerFilter,
+  )
+    ? undefined
+    : allowedRecords.length > 0
+      ? { id: { in: allowedRecords.map(({ id }) => id) } }
+      : { id: { is: FilterIs.Null } };
+
   if (recordFieldInputLayoutDirectionLoading) {
     return <></>;
   }
@@ -110,6 +139,7 @@ export const RelationManyToOneFieldInput = () => {
       EmptyIcon={IconForbid}
       emptyLabel={t`No ${fieldLabel}`}
       onCancel={onCancel}
+      additionalFilter={additionalFilter}
       onCreate={
         isDefined(createNewRecordAndOpenSidePanel) ? handleCreateNew : undefined
       }

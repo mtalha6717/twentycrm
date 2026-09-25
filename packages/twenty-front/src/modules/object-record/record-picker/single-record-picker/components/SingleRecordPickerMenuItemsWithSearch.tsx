@@ -23,6 +23,7 @@ export const SingleRecordPickerMenuItemsWithSearch = ({
   EmptyIcon,
   emptyLabel,
   excludedRecordIds,
+  additionalFilter,
   onCancel,
   onCreate,
   onMorphItemSelected,
@@ -50,6 +51,7 @@ export const SingleRecordPickerMenuItemsWithSearch = ({
   } = useSingleRecordPickerRecords({
     objectNameSingulars,
     excludedRecordIds,
+    additionalFilter,
   });
 
   const { objectMetadataItems: allObjectMetadataItems } =

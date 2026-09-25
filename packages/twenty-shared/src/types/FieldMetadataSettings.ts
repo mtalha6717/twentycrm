@@ -56,6 +56,8 @@ type FieldMetadataRelationSettings = {
   // Points to the target field on the junction object
   // For MORPH_RELATION fields, morphRelations already contains all targets
   junctionTargetFieldId?: SerializedRelation;
+  // Extra filter on the target object applied to the record picker options
+  recordPickerFilter?: Record<string, unknown>;
 };
 
 type FieldMetadataAddressSettings = {
